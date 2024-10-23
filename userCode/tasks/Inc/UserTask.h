@@ -8,6 +8,8 @@
 #include "Device.h"
 #include "Servo.h"
 #include "Motor.h"
+
+#define RADpS2RPM(num)(num / (3.1415926f/30.0f))
 /*枚举类型定义------------------------------------------------------------*/
 
 
@@ -24,4 +26,5 @@ extern Servo ClawServo,TurnLServo,TurnRServo,ShovelLServo,ShovelRServo;
 void UserStop();
 void UserHandle();
 void UserInit();
+void User_motor_set_speed(float Uv);
 #endif //RM_FRAME_C_USERTASK_H

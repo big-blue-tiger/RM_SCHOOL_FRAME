@@ -23,6 +23,10 @@ MOTOR_INIT_t userMotorInit = {
 
 Motor UserMotor(MOTOR_ID_5,&userMotorInit);
 
+void User_motor_set_speed(float Uv) //Uv角速度，单位：rad/s
+{
+    UserMotor.SetTargetSpeed(RADpS2RPM(Uv));
+}
 /***
  * 在这里放入xxx.stop()即可使舵机,电机在遥控器急停挡位断电
  */

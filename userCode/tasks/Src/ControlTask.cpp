@@ -31,12 +31,14 @@ void CtrlHandle(){
 
                 if (RemoteControl::rcInfo.optional[0] == optional_up && RemoteControl::rcInfo.optional[1] == optional_up){
                     // 吃球平台舵机控制至贴近地面
+                    User_motor_set_speed(20);
                     // 滚筒电机驱动吃球，恒定速率
                 }
                 else{
                     // 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
                 }
                 if (RemoteControl::rcInfo.optional[0] == optional_down && RemoteControl::rcInfo.optional[1] == optional_up){
+                    User_motor_set_speed(-20);
                     // 滚筒电机驱动吐球，恒定速率
                 }
                 break;
