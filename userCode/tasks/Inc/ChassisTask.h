@@ -13,6 +13,8 @@
 #define REDUCTION_RATIO 19.0f
 #define TRACK_WIDTH            0.40f //轮距
 #define WHEEL_BASE             0.38f //轴距
+#define length    0.50f
+#define width     0.50f
 /*枚举类型定义------------------------------------------------------------*/
 
 /*

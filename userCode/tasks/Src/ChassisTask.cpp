@@ -67,30 +67,25 @@ void ChassisStop(){
     CMBR.Stop();
 }
 
-void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity) {
+void WheelsSpeedCalc(float fbVelocity, float lrVelocity, float rtVelocity)
+{
     float CMFLSpeed, CMFRSpeed, CMBLSpeed, CMBRSpeed;
-
     rtVelocity = RPM2RADpS(rtVelocity);
+    //计算四个轮子线速度,单位:m/s
+    CMFLSpeed = fbVelocity - lrVelocity -rtVelocity*(0.5*width+0.5*length);//width和length分别是小车底盘的宽和长
+    CMFRSpeed = fbVelocity + lrVelocity +rtVelocity*(0.5*width+0.5*length);
+    CMBLSpeed = fbVelocity - lrVelocity + rtVelocity*(0.5*width+0.5*length);
+    CMBRSpeed = fbVelocity + lrVelocity - rtVelocity*(0.5*width+0.5*length);
 
-    //计算四个轮子线速度，单位：m/s
-    /**
-     * @brief 此处四句代码需要结合底盘的三个速度，计算处四个轮子的位置对应的线速度。
-     * @param fbVelocity,lrVelocity,rtVelocity
-     * @return CMFLSpeed CMFRSpeed CMBLSpeed CMBRSpeed
-     */
-    CMFLSpeed = 0;
-    CMFRSpeed = 0;
-    CMBLSpeed = 0;
-    CMBRSpeed = 0;
+    //计算四个轮子角速度,单位:rad/s
+    CMFLSpeed= CMFLSpeed /(WHEEL_DIAMETER/2.0f);
+    CMFRSpeed= CMFRSpeed/(WHEEL_DIAMETER/2.0f);
+    CMBLSpeed= CMBLSpeed /(WHEEL_DIAMETER/2.0f);
+    CMBRSpeed= CMBRSpeed /(WHEEL_DIAMETER/2.0f);
 
-    //计算四个轮子角速度，单位：rad/s
-    CMFLSpeed = CMFLSpeed /(WHEEL_DIAMETER/2.0f);
-    CMFRSpeed = CMFRSpeed /(WHEEL_DIAMETER/2.0f);
-    CMBLSpeed = CMBLSpeed /(WHEEL_DIAMETER/2.0f);
-    CMBRSpeed = CMBRSpeed /(WHEEL_DIAMETER/2.0f);
     //控制底盘电机转速
     CMFL.SetTargetSpeed(RADpS2RPM(CMFLSpeed));
-    CMFR.SetTargetSpeed(RADpS2RPM(CMFRSpeed));
-    CMBL.SetTargetSpeed(RADpS2RPM(CMBLSpeed));
-    CMBR.SetTargetSpeed(RADpS2RPM(CMBRSpeed));
+    CMFR.SetTargetSpeed(RADpS2RPM(CMFLSpeed));
+    CMBL.SetTargetSpeed(RADpS2RPM(CMFLSpeed));
+    CMBR.SetTargetSpeed(RADpS2RPM(CMFLSpeed));
 }
