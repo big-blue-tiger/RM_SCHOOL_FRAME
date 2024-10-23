@@ -10,7 +10,7 @@ PID_Regulator_t userPidRegulator = {
         .componentKpMax = 10000,
         .componentKiMax = 0,
         .componentKdMax = 0,
-        .outputMax = 10000 //2006电机输出电流上限，可以调小，勿调大
+        .outputMax = 10000 // 2006 电机输出电流上限，可以调小，勿调大
 };
 
 MOTOR_INIT_t userMotorInit = {
@@ -32,13 +32,16 @@ void User_motor_set_speed(float Uv) //Uv角速度，单位：rad/s
  */
 void UserStop(){
     UserMotor.Stop();
+    ClawServo.stop();
+    TurnLServo.stop();
 }
 
 /***
  * 在这里写入初始化内容
  */
 void UserInit(){
-
+    ClawServo.Handle();
+    TurnLServo.Handle();//这一段最好放在初始化的地方，不要放在循环里面
 }
 
 /***
