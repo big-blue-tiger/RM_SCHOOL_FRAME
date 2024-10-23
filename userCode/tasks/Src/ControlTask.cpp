@@ -7,6 +7,7 @@
 
 int step_control_flag = 0;// 1为上台阶中，2为下台阶中，0为其他状态
 int step_processing_time = 0;//控制上下台阶的时间状态
+float current_angle=90.0;
 int Get_Control_Mode_Index() // 获取模式编号
 {
     if(RemoteControl::rcInfo.sLeft == UP_POS && RemoteControl::rcInfo.sRight == UP_POS)
@@ -17,10 +18,33 @@ int Get_Control_Mode_Index() // 获取模式编号
         return 3;
     return 0;
 }
+
+SERVO_INIT_T Claw_Servo_Init ={
+   .servoType = POSITION_180,
+   .servoID = SERVO_ID_1,
+   .firstAngle = 90,
+   .angleLimit_Min = 0,
+   .angleLimit_Max = 180
+};
+Servo ClawServo(&Claw_Servo_Init);   //声明舵机
+
+SERVO_INIT_T TurnL_Servo_Init ={
+        .servoType = POSITION_180,
+        .servoID = SERVO_ID_2,
+        .firstAngle = 90,
+        .angleLimit_Min = 0,
+        .angleLimit_Max = 180
+};
+Servo TurnLServo(&TurnL_Servo_Init);
+
 void CtrlHandle(){
+		ClawServo.Handle();
+    TurnLServo.Handle();//这一段最好放在初始化的地方，不要放在循环里面
     if (RemoteControl::rcInfo.sRight == DOWN_POS){//右侧三档，急停模式
         ChassisStop();
         UserStop();
+				ClawServo.stop();
+				TurnLServo.stop();
     }else {//其他正常模式
         switch (Get_Control_Mode_Index()) {
             case 1://左侧一档
@@ -30,15 +54,19 @@ void CtrlHandle(){
                                    RemoteControl::rcInfo.right_rol*4.2,RemoteControl::rcInfo.left_rol*60);
 
                 if (RemoteControl::rcInfo.optional[0] == optional_up && RemoteControl::rcInfo.optional[1] == optional_up){
-                    // 吃球平台舵机控制至贴近地面
-                    User_motor_set_speed(20);
+										HAL_Delay(500);//这一段存疑
+									if (RemoteControl::rcInfo.optional[0] == optional_up && RemoteControl::rcInfo.optional[1] == optional_up){
+                    ClawServo.SetTargetAngle(10.0);
+										TurnLServo.SetTargetAngle(10.0);
+									   current_angle=10.0;}// 吃球平台舵机控制至贴近地面,参数可调
                     // 滚筒电机驱动吃球，恒定速率
                 }
                 else{
-                    // 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
+                    ClawServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);//参数可以调整
+										TurnLServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);
+									current_angle=current_angle+RemoteControl::rcInfo.left_col*90.0;// 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
                 }
                 if (RemoteControl::rcInfo.optional[0] == optional_down && RemoteControl::rcInfo.optional[1] == optional_up){
-                    User_motor_set_speed(-20);
                     // 滚筒电机驱动吐球，恒定速率
                 }
                 break;
@@ -48,7 +76,9 @@ void CtrlHandle(){
 
                 if (RemoteControl::rcInfo.optional[1] == optional_down){
                     step_processing_time = 0;
-                    // 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_rol 大小-1到1
+                    ClawServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);
+										TurnLServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);
+										current_angle=current_angle+RemoteControl::rcInfo.left_col*90.0;// 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_rol 大小-1到1
                     // 底盘前后轮中间舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
                 }
                 else{
@@ -89,19 +119,27 @@ void CtrlHandle(){
                 {
                     case optional_down*2+optional_down:
 
-                        // 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
+                    ClawServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);
+										TurnLServo.SetTargetAngle(current_angle+RemoteControl::rcInfo.left_col*90.0);
+										current_angle=current_angle+RemoteControl::rcInfo.left_col*90.0;// 吃球平台舵机控制 参数：float RemoteControl::rcInfo.left_col 大小-1到1
                         break;
                     case optional_up*2+optional_down:
-
+													ClawServo.SetTargetAngle(30.0);
+													TurnLServo.SetTargetAngle(30.0);
+													current_angle=30.0;
                         // 吃球平台舵机与地面一致
                         break;
                     case optional_down*2+optional_up:
 
-                        // 吃球平台舵机与前哨站高度一致
+                        ClawServo.SetTargetAngle(30.0);
+													TurnLServo.SetTargetAngle(30.0);
+													current_angle=30.0;// 吃球平台舵机与前哨站高度一致，参数调整
                         break;
                     case optional_up*2+optional_up:
 
-                        // 吃球平台舵机与基地高度一致
+                        ClawServo.SetTargetAngle(30.0);
+													TurnLServo.SetTargetAngle(30.0);
+													current_angle=30.0;// 吃球平台舵机与基地高度一致，参数调整
                         break;
                     default:
                         break;
